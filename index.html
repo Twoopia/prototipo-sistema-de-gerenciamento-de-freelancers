@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreelanceHub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0D0D;--bg-card:#111111;--bg-el:#161616;
+  --border:rgba(255,255,255,0.06);
+  --accent:#7C3AED;--al:#9D6EFF;--ad:rgba(124,58,237,0.12);
+  --text:#C9B99A;--tb:#E8D5B5;--tm:#6B5E4E;
+  --up:#4ADE80;--dn:#F87171;--warn:#FBBF24;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --rail:56px;--lp:276px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── GRAIN ── */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:128px}
+
+/* ── LOGIN ── */
+.login-ov{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  background:rgba(13,13,13,.92);backdrop-filter:blur(12px)}
+.login-ov.hidden{display:none}
+.lc{width:100%;max-width:380px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:44px 36px;display:flex;flex-direction:column;gap:20px}
+.lc-mark{width:44px;height:44px;background:var(--ad);border:1px solid rgba(124,58,237,.3);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--al);font-size:20px;margin-bottom:4px}
+.lc h1{font-size:22px;font-weight:800;color:var(--tb)}
+.lc p{font-size:12px;color:var(--tm);margin-top:-12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.06em}
+.fi{background:var(--bg-el);border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--tb);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;min-height:44px;width:100%;transition:border-color .2s}
+.fi:focus{border-color:rgba(124,58,237,.5)}
+.fi::placeholder{color:var(--tm)}
+select.fi{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B5E4E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+select.fi option{background:#1a1a1a;color:var(--tb)}
+textarea.fi{resize:vertical;min-height:88px}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 18px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:all .3s var(--ease);white-space:nowrap}
+.btn:hover{background:var(--al);box-shadow:0 0 24px rgba(124,58,237,.4)}
+.btn.ghost{background:transparent;color:var(--tm);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--bg-el);color:var(--text);box-shadow:none}
+.btn.sm{min-height:32px;padding:6px 12px;font-size:12px}
+.btn.danger:hover{background:rgba(248,113,113,.12);color:var(--dn);border-color:rgba(248,113,113,.2);box-shadow:none}
+
+/* ── SLIDEOVER ── */
+.so{position:fixed;inset:0;z-index:100;pointer-events:none}
+.so.open{pointer-events:all}
+.so-bd{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;transition:opacity .3s var(--ease)}
+.so.open .so-bd{opacity:1}
+.so-panel{position:absolute;top:0;right:0;bottom:0;width:360px;background:var(--bg-card);border-left:1px solid var(--border);transform:translateX(100%);transition:transform .35s var(--ease);display:flex;flex-direction:column}
+.so.open .so-panel{transform:none}
+.so-head{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.so-title{font-size:15px;font-weight:700;color:var(--tb)}
+.so-x{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--tm);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s}
+.so-x:hover{background:var(--bg-el);color:var(--text)}
+.so-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.so-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* ── THREE-COLUMN APP ── */
+.app{display:flex;height:100vh;width:100vw}
+
+/* RAIL */
+.rail{width:var(--rail);min-width:var(--rail);background:var(--bg-card);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:2px}
+.rail-logo{width:36px;height:36px;background:var(--ad);border:1px solid rgba(124,58,237,.3);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--al);font-size:16px;margin-bottom:12px}
+.ri{width:38px;height:38px;border-radius:8px;border:none;background:transparent;color:var(--tm);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;position:relative;transition:all .18s var(--ease)}
+.ri:hover{background:var(--bg-el);color:var(--text)}
+.ri.active{background:var(--ad);color:var(--al)}
+.ri[title]:hover::after{content:attr(title);position:absolute;left:48px;top:50%;transform:translateY(-50%);background:var(--bg-el);border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--tb);white-space:nowrap;pointer-events:none;z-index:50}
+.rail-sp{flex:1}
+.rail-av{width:28px;height:28px;border-radius:50%;background:var(--ad);border:1px solid rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--al)}
+
+/* LIST PANE */
+.lp{width:var(--lp);min-width:var(--lp);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.lp-head{padding:14px 14px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lp-title{font-size:13px;font-weight:700;color:var(--tb)}
+.lp-add{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--tm);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.lp-add:hover{background:var(--bg-el);color:var(--text)}
+.lp-search{padding:0 10px 10px;flex-shrink:0}
+.lp-si{display:flex;align-items:center;gap:6px;background:var(--bg-el);border:1px solid var(--border);border-radius:7px;padding:0 10px}
+.lp-si i{color:var(--tm);font-size:13px;flex-shrink:0}
+.lp-si input{background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 0;flex:1;min-width:0}
+.lp-si input::placeholder{color:var(--tm)}
+.lp-scroll{flex:1;overflow-y:auto}
+.lp-scroll::-webkit-scrollbar{width:3px}
+.lp-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.section{display:none}
+.section.active{display:flex;flex-direction:column;height:100%}
+
+/* LIST ITEMS */
+.li{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-left:2px solid transparent;transition:all .15s;position:relative}
+.li:hover{background:rgba(255,255,255,.02)}
+.li.sel{background:rgba(124,58,237,.07);border-left-color:var(--accent)}
+.li-av{width:32px;height:32px;border-radius:50%;background:var(--bg-el);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--tm);flex-shrink:0}
+.li-av.acc{background:var(--ad);border-color:rgba(124,58,237,.2);color:var(--al)}
+.li-body{flex:1;min-width:0}
+.li-name{font-size:13px;font-weight:500;color:var(--tb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-sub{font-size:11px;color:var(--tm);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-badge{font-size:11px;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.li-score{font-size:11px;font-weight:700;color:var(--warn);flex-shrink:0}
+.li-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.li-dot.open{background:#6B7280}
+.li-dot.prog{background:var(--warn)}
+.li-dot.done{background:var(--up)}
+
+/* DASH STAT LIST */
+.dash-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin:0 0 8px}
+.ds-item{background:var(--bg-card);padding:14px 16px}
+.ds-val{font-size:22px;font-weight:800;color:var(--tb);line-height:1}
+.ds-lbl{font-size:10px;color:var(--tm);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+
+/* ACTIVITY FEED */
+.act-lbl{padding:6px 14px;font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.07em}
+.act-item{display:flex;align-items:flex-start;gap:10px;padding:8px 14px}
+.act-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.act-text{font-size:12px;color:var(--text);line-height:1.45}
+.act-text b{color:var(--tb);font-weight:600}
+.act-time{font-size:11px;color:var(--tm);margin-top:2px}
+
+/* DETAIL PANE */
+.dp-pane{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.dp-pane::-webkit-scrollbar{width:3px}
+.dp-pane::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.dp-view{display:none;flex-direction:column;flex:1}
+.dp-view.active{display:flex}
+
+.dp-bar{padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;background:rgba(13,13,13,.85);backdrop-filter:blur(16px);z-index:10}
+.dp-crumb{font-size:11px;color:var(--tm);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.dp-bar-acts{display:flex;gap:6px}
+.dp-content{padding:32px 32px 48px;flex:1}
+
+.eyebrow{font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.headline{font-size:28px;font-weight:800;color:var(--tb);line-height:1.15;margin-bottom:24px}
+.sec-lbl{font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.07em;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* DASHBOARD BIG STATS */
+.big-stats{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.bs-item{flex:1;padding:20px 24px}
+.bs-item+.bs-item{border-left:1px solid var(--border)}
+.bs-val{font-size:26px;font-weight:800;color:var(--tb);line-height:1}
+.bs-lbl{font-size:11px;color:var(--tm);margin-top:5px}
+
+/* FEATURED CARDS */
+.feat-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:0}
+.fc{border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:border-color .2s var(--ease);display:flex;flex-direction:column;gap:6px}
+.fc:hover{border-color:rgba(124,58,237,.3)}
+.fc-ey{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.fc-av{width:40px;height:40px;border-radius:50%;background:var(--ad);border:1px solid rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--al)}
+.fc-name{font-size:15px;font-weight:700;color:var(--tb);margin-top:2px}
+.fc-sub{font-size:12px;color:var(--tm)}
+.fc-score{font-size:20px;font-weight:800;color:var(--warn);margin-top:4px}
+.fc-ptitle{font-size:17px;font-weight:700;color:var(--tb)}
+.fc-psub{font-size:12px;color:var(--tm)}
+.fc-pval{font-size:22px;font-weight:800;color:var(--al);margin-top:4px}
+
+/* MINI KANBAN */
+.mk{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
+.mk-col{background:var(--bg-el);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.mk-head{padding:10px 14px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.mk-head span{opacity:.6;font-weight:400}
+.mk-head.open{color:#9CA3AF}
+.mk-head.prog{color:var(--warn)}
+.mk-head.done{color:var(--up)}
+.mk-card{padding:8px 14px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border)}
+.mk-card:last-child{border-bottom:none}
+
+/* PROFILE HERO */
+.prof-hero{display:flex;align-items:center;gap:18px;margin-bottom:4px}
+.ph-av{width:56px;height:56px;border-radius:50%;background:var(--bg-el);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--tm);flex-shrink:0}
+.ph-av.lg{width:64px;height:64px;font-size:22px}
+.ph-av.acc{background:var(--ad);border-color:rgba(124,58,237,.3);color:var(--al)}
+.prof-name{font-size:24px;font-weight:800;color:var(--tb);line-height:1.1}
+.prof-role{font-size:13px;color:var(--al);margin-top:3px}
+.prof-meta{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.prof-meta span{font-size:12px;color:var(--tm);display:flex;align-items:center;gap:4px}
+
+/* RATING HERO */
+.rh{text-align:right;flex-shrink:0}
+.rh-num{font-size:40px;font-weight:800;color:var(--warn);line-height:1}
+.rh-stars{color:var(--warn);font-size:14px;letter-spacing:1px}
+.rh-lbl{font-size:11px;color:var(--tm);margin-top:2px}
+
+/* PROJECT CARDS (horizontal) */
+.pc-list{display:flex;flex-direction:column;gap:8px}
+.pc{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-el);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:border-color .15s}
+.pc:hover{border-color:rgba(255,255,255,.12)}
+.pc.new{justify-content:center;gap:6px;color:var(--tm);font-size:13px;border-style:dashed}
+.pc.new:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
+.pc-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.pc-dot.open{background:#6B7280}
+.pc-dot.prog{background:var(--warn)}
+.pc-dot.done{background:var(--up)}
+.pc-name{flex:1;font-size:13px;font-weight:500;color:var(--tb)}
+.pc-date{font-size:12px;color:var(--tm)}
+.pc-val{font-size:13px;font-weight:700;color:var(--al)}
+
+/* AV CARDS */
+.av-list{display:flex;flex-direction:column;gap:8px}
+.avc{padding:14px 16px;background:var(--bg-el);border:1px solid var(--border);border-radius:9px}
+.avc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.avc-proj{font-size:13px;font-weight:600;color:var(--tb)}
+.avc-score{font-size:13px;font-weight:700;color:var(--warn)}
+.avc-quote{font-size:13px;color:var(--text);font-style:italic;line-height:1.5}
+.avc-by{font-size:11px;color:var(--tm);margin-top:6px}
+
+/* PROJECT DETAIL */
+.pmr{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px}
+.pmr-item{flex:1;padding:14px 18px}
+.pmr-item+.pmr-item{border-left:1px solid var(--border)}
+.pmr-lbl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.pmr-val{font-size:14px;font-weight:500;color:var(--tb)}
+.proj-desc{font-size:13px;color:var(--text);line-height:1.7;background:var(--bg-el);border:1px solid var(--border);border-radius:9px;padding:14px 16px}
+
+/* STATUS PICKER */
+.sp{display:flex;gap:8px;margin-top:4px}
+.sp-btn{padding:7px 16px;border-radius:100px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--tm);transition:all .15s}
+.sp-btn.open.a{background:rgba(107,114,128,.2);color:#9CA3AF;border-color:#6B7280}
+.sp-btn.prog.a{background:rgba(251,191,36,.15);color:var(--warn);border-color:var(--warn)}
+.sp-btn.done.a{background:rgba(74,222,128,.12);color:var(--up);border-color:var(--up)}
+
+/* RATING ROW */
+.rr{display:flex;align-items:center;gap:14px;padding:12px;background:var(--bg-el);border:1px solid var(--border);border-radius:8px}
+.rr-num{font-size:26px;font-weight:800;color:var(--warn);min-width:52px;text-align:center}
+input[type=range]{flex:1;height:3px;accent-color:var(--accent);cursor:pointer}
+
+/* BADGES */
+.b-open{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(107,114,128,.15);color:#9CA3AF}
+.b-prog{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(251,191,36,.12);color:var(--warn)}
+.b-done{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(74,222,128,.1);color:var(--up)}
+
+/* MOBILE */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(17,17,17,.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:50}
+.mob-nav-inner{display:flex}
+.mn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;background:transparent;border:none;color:var(--tm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;min-height:44px}
+.mn-btn i{font-size:20px}
+.mn-btn.active{color:var(--al)}
+
+@media(max-width:767px){
+  .rail,.lp{display:none}
+  .mob-nav{display:block}
+  .dp-pane{padding-bottom:64px}
+  .dp-content{padding:20px 16px 32px}
+  .headline{font-size:22px}
+  .big-stats{flex-direction:column}
+  .bs-item+.bs-item{border-left:none;border-top:1px solid var(--border)}
+  .feat-row{grid-template-columns:1fr}
+  .mk{grid-template-columns:1fr}
+  .pmr{flex-direction:column}
+  .pmr-item+.pmr-item{border-left:none;border-top:1px solid var(--border)}
+  .so-panel{width:100%;max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-ov" id="login">
+  <div class="lc">
+    <div class="lc-mark"><i class="ph ph-lightning"></i></div>
+    <h1>FreelanceHub</h1>
+    <p>Sistema de Gerenciamento de Freelancers</p>
+    <div class="fg"><label class="fl">E-mail</label><input class="fi" type="email" value="gestor@empresa.com"></div>
+    <div class="fg"><label class="fl">Senha</label><input class="fi" type="password" value="••••••••"></div>
+    <button class="btn" onclick="document.getElementById('login').classList.add('hidden')">Entrar <i class="ph ph-arrow-right"></i></button>
+  </div>
+</div>
+
+<!-- SLIDEOVER -->
+<div class="so" id="so">
+  <div class="so-bd" onclick="closeSO()"></div>
+  <div class="so-panel">
+    <div class="so-head">
+      <span class="so-title" id="so-title">Novo Cliente</span>
+      <button class="so-x" onclick="closeSO()"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="so-body" id="so-body"></div>
+    <div class="so-footer">
+      <button class="btn ghost sm" onclick="closeSO()">Cancelar</button>
+      <button class="btn sm" onclick="closeSO()"><i class="ph ph-check"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- RAIL -->
+  <nav class="rail">
+    <div class="rail-logo"><i class="ph ph-lightning"></i></div>
+    <button class="ri active" id="ri-dashboard" title="Dashboard"    onclick="sec('dashboard')"><i class="ph ph-squares-four"></i></button>
+    <button class="ri"        id="ri-clientes"  title="Clientes"     onclick="sec('clientes')"><i class="ph ph-buildings"></i></button>
+    <button class="ri"        id="ri-free"      title="Freelancers"  onclick="sec('freelancers')"><i class="ph ph-users"></i></button>
+    <button class="ri"        id="ri-proj"      title="Projetos"     onclick="sec('projetos')"><i class="ph ph-folder-open"></i></button>
+    <button class="ri"        id="ri-aval"      title="Avaliações"   onclick="sec('avaliacoes')"><i class="ph ph-star"></i></button>
+    <div class="rail-sp"></div>
+    <button class="ri" title="Sair" onclick="document.getElementById('login').classList.remove('hidden')">
+      <div class="rail-av">G</div>
+    </button>
+  </nav>
+
+  <!-- LIST PANE -->
+  <aside class="lp">
+
+    <!-- Dashboard -->
+    <div class="section active" id="sec-dashboard">
+      <div class="lp-head"><span class="lp-title">Dashboard</span></div>
+      <div class="lp-scroll">
+        <div class="dash-stats">
+          <div class="ds-item"><div class="ds-val">4</div><div class="ds-lbl">Clientes</div></div>
+          <div class="ds-item"><div class="ds-val">5</div><div class="ds-lbl">Freelancers</div></div>
+          <div class="ds-item"><div class="ds-val" style="color:var(--warn)">3</div><div class="ds-lbl">Em andamento</div></div>
+          <div class="ds-item"><div class="ds-val" style="color:var(--up)">2</div><div class="ds-lbl">Concluídos</div></div>
+        </div>
+        <div class="act-lbl">Atividade recente</div>
+        <div class="act-item"><div class="act-dot" style="background:var(--up)"></div><div><div class="act-text">Projeto <b>App Mobile</b> criado</div><div class="act-time">há 2 horas</div></div></div>
+        <div class="act-item"><div class="act-dot" style="background:var(--al)"></div><div><div class="act-text">Avaliação de <b>Lucas Ferreira</b></div><div class="act-time">há 5 horas</div></div></div>
+        <div class="act-item"><div class="act-dot" style="background:var(--warn)"></div><div><div class="act-text"><b>Carlos Lima</b> adicionado</div><div class="act-time">ontem</div></div></div>
+        <div class="act-item"><div class="act-dot" style="background:var(--up)"></div><div><div class="act-text">Campanha concluída</div><div class="act-time">há 3 dias</div></div></div>
+        <div class="act-item"><div class="act-dot" style="background:var(--al)"></div><div><div class="act-text"><b>Fernanda Rocha</b> cadastrada</div><div class="act-time">há 4 dias</div></div></div>
+      </div>
+    </div>
+
+    <!-- Clientes -->
+    <div class="section" id="sec-clientes">
+      <div class="lp-head"><span class="lp-title">Clientes</span><button class="lp-add" onclick="openSO('cliente')"><i class="ph ph-plus"></i></button></div>
+      <div class="lp-search"><div class="lp-si"><i class="ph ph-magnifying-glass"></i><input placeholder="Buscar..."></div></div>
+      <div class="lp-scroll">
+        <div class="li sel" onclick="det('cliente')"><div class="li-av">AS</div><div class="li-body"><div class="li-name">Ana Souza</div><div class="li-sub">3 projetos</div></div><div class="li-badge" style="background:rgba(251,191,36,.12);color:var(--warn)">3</div></div>
+        <div class="li"    onclick="det('cliente')"><div class="li-av">CL</div><div class="li-body"><div class="li-name">Carlos Lima</div><div class="li-sub">1 projeto</div></div><div class="li-badge" style="background:rgba(107,114,128,.12);color:#9CA3AF">1</div></div>
+        <div class="li"    onclick="det('cliente')"><div class="li-av">MC</div><div class="li-body"><div class="li-name">Mariana Costa</div><div class="li-sub">2 projetos</div></div><div class="li-badge" style="background:rgba(74,222,128,.1);color:var(--up)">2</div></div>
+        <div class="li"    onclick="det('cliente')"><div class="li-av">RS</div><div class="li-body"><div class="li-name">Roberto Silva</div><div class="li-sub">1 projeto</div></div><div class="li-badge" style="background:rgba(107,114,128,.12);color:#9CA3AF">1</div></div>
+      </div>
+    </div>
+
+    <!-- Freelancers -->
+    <div class="section" id="sec-freelancers">
+      <div class="lp-head"><span class="lp-title">Freelancers</span><button class="lp-add" onclick="openSO('freelancer')"><i class="ph ph-plus"></i></button></div>
+      <div class="lp-search"><div class="lp-si"><i class="ph ph-magnifying-glass"></i><input placeholder="Buscar..."></div></div>
+      <div class="lp-scroll">
+        <div class="li sel" onclick="det('freelancer')"><div class="li-av acc">LF</div><div class="li-body"><div class="li-name">Lucas Ferreira</div><div class="li-sub">Marketing Digital</div></div><div class="li-score">★ 9,5</div></div>
+        <div class="li"    onclick="det('freelancer')"><div class="li-av">JM</div><div class="li-body"><div class="li-name">João Mendes</div><div class="li-sub">Dev. Web</div></div><div class="li-score">★ 9,2</div></div>
+        <div class="li"    onclick="det('freelancer')"><div class="li-av">PA</div><div class="li-body"><div class="li-name">Pedro Alves</div><div class="li-sub">Dev. Mobile</div></div><div class="li-score">★ 8,9</div></div>
+        <div class="li"    onclick="det('freelancer')"><div class="li-av">FR</div><div class="li-body"><div class="li-name">Fernanda Rocha</div><div class="li-sub">Design Gráfico</div></div><div class="li-score">★ 8,7</div></div>
+        <div class="li"    onclick="det('freelancer')"><div class="li-av">CS</div><div class="li-body"><div class="li-name">Camila Santos</div><div class="li-sub">Redação</div></div><div class="li-score">★ 7,8</div></div>
+      </div>
+    </div>
+
+    <!-- Projetos -->
+    <div class="section" id="sec-projetos">
+      <div class="lp-head"><span class="lp-title">Projetos</span><button class="lp-add" onclick="openSO('projeto')"><i class="ph ph-plus"></i></button></div>
+      <div class="lp-search"><div class="lp-si"><i class="ph ph-magnifying-glass"></i><input placeholder="Buscar..."></div></div>
+      <div class="lp-scroll">
+        <div class="li sel" onclick="det('projeto')"><div class="li-dot open"></div><div class="li-body"><div class="li-name">App Mobile Delivery</div><div class="li-sub">Carlos Lima · R$ 12.000</div></div></div>
+        <div class="li"    onclick="det('projeto')"><div class="li-dot prog"></div><div class="li-body"><div class="li-name">Redesign Identidade Visual</div><div class="li-sub">Roberto Silva · R$ 6.500</div></div></div>
+        <div class="li"    onclick="det('projeto')"><div class="li-dot prog"></div><div class="li-body"><div class="li-name">Site Institucional</div><div class="li-sub">Ana Souza · R$ 4.500</div></div></div>
+        <div class="li"    onclick="det('projeto')"><div class="li-dot prog"></div><div class="li-body"><div class="li-name">E-commerce Completo</div><div class="li-sub">Ana Souza · R$ 18.000</div></div></div>
+        <div class="li"    onclick="det('projeto')"><div class="li-dot open"></div><div class="li-body"><div class="li-name">Newsletter Mensal</div><div class="li-sub">Ana Souza · R$ 800</div></div></div>
+        <div class="li"    onclick="det('projeto')"><div class="li-dot done"></div><div class="li-body"><div class="li-name">Campanha de Mídia Social</div><div class="li-sub">Mariana Costa · R$ 2.800</div></div></div>
+        <div class="li"    onclick="det('projeto')"><div class="li-dot done"></div><div class="li-body"><div class="li-name">Blog Corporativo</div><div class="li-sub">Ana Souza · R$ 1.500</div></div></div>
+      </div>
+    </div>
+
+    <!-- Avaliações -->
+    <div class="section" id="sec-avaliacoes">
+      <div class="lp-head"><span class="lp-title">Avaliações</span><button class="lp-add" onclick="det('avaliacao')"><i class="ph ph-plus"></i></button></div>
+      <div class="lp-scroll">
+        <div class="li sel" onclick="det('avaliacao')"><div class="li-av acc">LF</div><div class="li-body"><div class="li-name">Lucas Ferreira</div><div class="li-sub">Campanha · 15 mai.</div></div><div class="li-score">9,8</div></div>
+        <div class="li"    onclick="det('avaliacao')"><div class="li-av">LF</div><div class="li-body"><div class="li-name">Lucas Ferreira</div><div class="li-sub">Newsletter · 10 abr.</div></div><div class="li-score">9,5</div></div>
+        <div class="li"    onclick="det('avaliacao')"><div class="li-av">JM</div><div class="li-body"><div class="li-name">João Mendes</div><div class="li-sub">Site Instit. · 01 mai.</div></div><div class="li-score">8,8</div></div>
+        <div class="li"    onclick="det('avaliacao')"><div class="li-av">FR</div><div class="li-body"><div class="li-name">Fernanda Rocha</div><div class="li-sub">Redesign · 20 mai.</div></div><div class="li-score">8,5</div></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- DETAIL PANE -->
+  <main class="dp-pane">
+
+    <!-- Dashboard -->
+    <div class="dp-view active" id="dp-dashboard">
+      <div class="dp-bar"><span class="dp-crumb">Segunda, 23 jun 2026</span></div>
+      <div class="dp-content">
+        <div class="eyebrow">Visão Geral</div>
+        <div class="headline">Olá, Gestor 👋</div>
+        <div class="big-stats">
+          <div class="bs-item"><div class="bs-val">R$ 47.100</div><div class="bs-lbl">Em orçamentos ativos</div></div>
+          <div class="bs-item"><div class="bs-val" style="color:var(--warn)">8,8</div><div class="bs-lbl">Nota média dos freelancers</div></div>
+          <div class="bs-item"><div class="bs-val" style="color:var(--up)">29%</div><div class="bs-lbl">Taxa de conclusão</div></div>
+        </div>
+        <div class="feat-row">
+          <div class="fc" onclick="sec('freelancers')">
+            <div class="fc-ey"><i class="ph ph-trophy"></i> Melhor avaliado</div>
+            <div class="fc-av">LF</div>
+            <div class="fc-name">Lucas Ferreira</div>
+            <div class="fc-sub">Marketing Digital</div>
+            <div class="fc-score">★ 9,5</div>
+          </div>
+          <div class="fc" style="background:linear-gradient(135deg,rgba(124,58,237,.06) 0%,transparent 100%)" onclick="sec('projetos')">
+            <div class="fc-ey"><i class="ph ph-currency-dollar-simple"></i> Maior orçamento</div>
+            <div class="fc-ptitle">E-commerce Completo</div>
+            <div class="fc-psub">Ana Souza</div>
+            <div class="fc-pval">R$ 18.000</div>
+            <div style="margin-top:8px"><span class="b-prog">Em andamento</span></div>
+          </div>
+        </div>
+        <div class="sec-lbl">Projetos por status</div>
+        <div class="mk">
+          <div class="mk-col"><div class="mk-head open">Aberto <span>2</span></div><div class="mk-card">App Mobile Delivery</div><div class="mk-card">Newsletter Mensal</div></div>
+          <div class="mk-col"><div class="mk-head prog">Em andamento <span>3</span></div><div class="mk-card">Redesign Identidade Visual</div><div class="mk-card">Site Institucional</div><div class="mk-card">E-commerce Completo</div></div>
+          <div class="mk-col"><div class="mk-head done">Concluído <span>2</span></div><div class="mk-card">Campanha de Mídia Social</div><div class="mk-card">Blog Corporativo</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="dp-view" id="dp-cliente">
+      <div class="dp-bar">
+        <span class="dp-crumb">Clientes</span>
+        <div class="dp-bar-acts">
+          <button class="btn ghost sm" onclick="openSO('cliente')"><i class="ph ph-pencil"></i> Editar</button>
+          <button class="btn ghost sm danger"><i class="ph ph-trash"></i></button>
+        </div>
+      </div>
+      <div class="dp-content">
+        <div class="prof-hero">
+          <div class="ph-av lg">AS</div>
+          <div><div class="prof-name">Ana Souza</div><div class="prof-meta"><span><i class="ph ph-envelope"></i> ana@empresa.com</span><span><i class="ph ph-phone"></i> (11) 99999-1234</span></div></div>
+        </div>
+        <div class="sec-lbl">Projetos</div>
+        <div class="pc-list">
+          <div class="pc"><div class="pc-dot prog"></div><div class="pc-name">Site Institucional</div><div class="pc-date">Jun 2026</div><div class="pc-val">R$ 4.500</div></div>
+          <div class="pc"><div class="pc-dot done"></div><div class="pc-name">Blog Corporativo</div><div class="pc-date">Abr 2026</div><div class="pc-val">R$ 1.500</div></div>
+          <div class="pc"><div class="pc-dot open"></div><div class="pc-name">Newsletter Mensal</div><div class="pc-date">Jul 2026</div><div class="pc-val">R$ 800</div></div>
+          <div class="pc new" onclick="openSO('projeto')"><i class="ph ph-plus"></i> Novo projeto</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Freelancer -->
+    <div class="dp-view" id="dp-freelancer">
+      <div class="dp-bar">
+        <span class="dp-crumb">Freelancers</span>
+        <div class="dp-bar-acts">
+          <button class="btn ghost sm" onclick="openSO('freelancer')"><i class="ph ph-pencil"></i> Editar</button>
+          <button class="btn ghost sm danger"><i class="ph ph-trash"></i></button>
+        </div>
+      </div>
+      <div class="dp-content">
+        <div class="prof-hero">
+          <div class="ph-av lg acc">LF</div>
+          <div style="flex:1"><div class="prof-name">Lucas Ferreira</div><div class="prof-role">Marketing Digital</div><div class="prof-meta"><span><i class="ph ph-envelope"></i> lucas@email.com</span></div></div>
+          <div class="rh"><div class="rh-num">9,5</div><div class="rh-stars">★★★★★</div><div class="rh-lbl">3 avaliações</div></div>
+        </div>
+        <div class="sec-lbl">Avaliações recebidas</div>
+        <div class="av-list">
+          <div class="avc"><div class="avc-top"><span class="avc-proj">Campanha de Mídia Social</span><span class="avc-score">★ 9,8</span></div><div class="avc-quote">"Entregou antes do prazo e superou as expectativas."</div><div class="avc-by">Mariana Costa · 15 mai. 2026</div></div>
+          <div class="avc"><div class="avc-top"><span class="avc-proj">Newsletter Mensal</span><span class="avc-score">★ 9,5</span></div><div class="avc-quote">"Muito profissional e criativo."</div><div class="avc-by">Ana Souza · 10 abr. 2026</div></div>
+          <div class="avc"><div class="avc-top"><span class="avc-proj">Blog Corporativo</span><span class="avc-score">★ 9,2</span></div><div class="avc-quote">"Ótima comunicação durante todo o projeto."</div><div class="avc-by">Ana Souza · 02 mar. 2026</div></div>
+        </div>
+        <div class="sec-lbl">Projetos participados</div>
+        <div class="pc-list">
+          <div class="pc"><div class="pc-dot done"></div><div class="pc-name">Campanha de Mídia Social</div><div class="pc-date">Mai 2026</div></div>
+          <div class="pc"><div class="pc-dot done"></div><div class="pc-name">Newsletter Mensal</div><div class="pc-date">Abr 2026</div></div>
+          <div class="pc"><div class="pc-dot done"></div><div class="pc-name">Blog Corporativo</div><div class="pc-date">Mar 2026</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projeto -->
+    <div class="dp-view" id="dp-projeto">
+      <div class="dp-bar">
+        <span class="dp-crumb">Projetos</span>
+        <div class="dp-bar-acts">
+          <button class="btn ghost sm" onclick="openSO('projeto')"><i class="ph ph-pencil"></i> Editar</button>
+          <button class="btn ghost sm danger"><i class="ph ph-trash"></i></button>
+        </div>
+      </div>
+      <div class="dp-content">
+        <div class="eyebrow">Carlos Lima · Criado em jan 2026</div>
+        <div class="headline">App Mobile Delivery</div>
+        <div class="pmr">
+          <div class="pmr-item"><div class="pmr-lbl">Status</div><div class="pmr-val"><span class="b-open">Aberto</span></div></div>
+          <div class="pmr-item"><div class="pmr-lbl">Prazo</div><div class="pmr-val">Agosto 2026</div></div>
+          <div class="pmr-item"><div class="pmr-lbl">Orçamento</div><div class="pmr-val" style="color:var(--al);font-weight:700">R$ 12.000</div></div>
+        </div>
+        <div class="sec-lbl">Descrição</div>
+        <div class="proj-desc">Desenvolvimento de aplicativo mobile para plataforma de delivery de alimentos. O sistema deve incluir cadastro de restaurantes, cardápio dinâmico, rastreamento de pedidos em tempo real e integração com meios de pagamento.</div>
+        <div class="sec-lbl">Alterar status</div>
+        <div class="sp">
+          <button class="sp-btn open a" onclick="spick(this)">Aberto</button>
+          <button class="sp-btn prog"   onclick="spick(this)">Em andamento</button>
+          <button class="sp-btn done"   onclick="spick(this)">Concluído</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avaliação -->
+    <div class="dp-view" id="dp-avaliacao">
+      <div class="dp-bar"><span class="dp-crumb">Avaliações</span></div>
+      <div class="dp-content" style="max-width:500px">
+        <div class="eyebrow">Nova avaliação</div>
+        <div class="headline">Registrar Avaliação</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="fg"><label class="fl">Freelancer</label>
+            <select class="fi"><option>Selecionar freelancer...</option><option>Lucas Ferreira — Marketing Digital</option><option>João Mendes — Dev. Web</option><option>Pedro Alves — Dev. Mobile</option><option>Fernanda Rocha — Design Gráfico</option><option>Camila Santos — Redação</option></select>
+          </div>
+          <div class="fg"><label class="fl">Projeto</label>
+            <select class="fi"><option>Selecionar projeto...</option><option>App Mobile Delivery</option><option>Redesign Identidade Visual</option><option>Site Institucional</option><option>E-commerce Completo</option></select>
+          </div>
+          <div class="fg"><label class="fl">Nota (0 a 10)</label>
+            <div class="rr"><span class="rr-num" id="rn">8,5</span><input type="range" min="0" max="10" step="0.5" value="8.5" oninput="document.getElementById('rn').textContent=parseFloat(this.value).toFixed(1).replace('.',',')"></div>
+          </div>
+          <div class="fg"><label class="fl">Comentário</label><textarea class="fi" rows="4" placeholder="Descreva o desempenho do freelancer..."></textarea></div>
+          <button class="btn" onclick="det('avaliacao')" style="align-self:flex-start"><i class="ph ph-star"></i> Registrar avaliação</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav">
+  <div class="mob-nav-inner">
+    <button class="mn-btn active" onclick="sec('dashboard')"><i class="ph ph-squares-four"></i><span>Início</span></button>
+    <button class="mn-btn" onclick="sec('clientes')"><i class="ph ph-buildings"></i><span>Clientes</span></button>
+    <button class="mn-btn" onclick="sec('freelancers')"><i class="ph ph-users"></i><span>Freelancers</span></button>
+    <button class="mn-btn" onclick="sec('projetos')"><i class="ph ph-folder-open"></i><span>Projetos</span></button>
+    <button class="mn-btn" onclick="sec('avaliacoes')"><i class="ph ph-star"></i><span>Avaliar</span></button>
+  </div>
+</nav>
+
+<script>
+const sectionMap = {
+  dashboard:   { det: 'dashboard' },
+  clientes:    { det: 'cliente' },
+  freelancers: { det: 'freelancer' },
+  projetos:    { det: 'projeto' },
+  avaliacoes:  { det: 'avaliacao' },
+};
+
+function sec(s) {
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.getElementById('sec-'+s).classList.add('active');
+  document.querySelectorAll('.ri[id^="ri-"]').forEach(el => el.classList.remove('active'));
+  const ri = document.getElementById('ri-'+s) || document.getElementById('ri-'+s.replace('clientes','clientes').replace('avaliacoes','aval').replace('freelancers','free').replace('projetos','proj'));
+  if(ri) ri.classList.add('active');
+  document.querySelectorAll('.mn-btn').forEach(el => el.classList.remove('active'));
+  const mb = [...document.querySelectorAll('.mn-btn')].find(b => b.getAttribute('onclick')?.includes(`'${s}'`));
+  if(mb) mb.classList.add('active');
+  det(sectionMap[s].det);
+}
+
+function det(d) {
+  document.querySelectorAll('.dp-view').forEach(el => el.classList.remove('active'));
+  document.getElementById('dp-'+d).classList.add('active');
+  document.querySelector('.dp-pane').scrollTop = 0;
+}
+
+const soForms = {
+  cliente: {
+    title: 'Novo Cliente',
+    html: `<div class="fg"><label class="fl">Nome completo</label><input class="fi" placeholder="Ex: Ana Souza"></div>
+           <div class="fg"><label class="fl">E-mail</label><input class="fi" type="email" placeholder="cliente@empresa.com"></div>
+           <div class="fg"><label class="fl">Telefone</label><input class="fi" type="tel" placeholder="(00) 00000-0000"></div>`
+  },
+  freelancer: {
+    title: 'Novo Freelancer',
+    html: `<div class="fg"><label class="fl">Nome completo</label><input class="fi" placeholder="Ex: João Mendes"></div>
+           <div class="fg"><label class="fl">E-mail</label><input class="fi" type="email" placeholder="freelancer@email.com"></div>
+           <div class="fg"><label class="fl">Especialidade</label><input class="fi" placeholder="Ex: Desenvolvimento Web"></div>`
+  },
+  projeto: {
+    title: 'Novo Projeto',
+    html: `<div class="fg"><label class="fl">Título</label><input class="fi" placeholder="Ex: Site Institucional"></div>
+           <div class="fg"><label class="fl">Cliente</label><select class="fi"><option>Selecionar...</option><option>Ana Souza</option><option>Carlos Lima</option><option>Mariana Costa</option><option>Roberto Silva</option></select></div>
+           <div class="fg"><label class="fl">Prazo</label><input class="fi" type="date"></div>
+           <div class="fg"><label class="fl">Orçamento (R$)</label><input class="fi" type="number" placeholder="5000"></div>
+           <div class="fg"><label class="fl">Status</label><select class="fi"><option>Aberto</option><option>Em andamento</option><option>Concluído</option></select></div>
+           <div class="fg"><label class="fl">Descrição</label><textarea class="fi" placeholder="Descreva o projeto..."></textarea></div>`
+  }
+};
+
+function openSO(type) {
+  const f = soForms[type];
+  document.getElementById('so-title').textContent = f.title;
+  document.getElementById('so-body').innerHTML = f.html;
+  document.getElementById('so').classList.add('open');
+}
+function closeSO() { document.getElementById('so').classList.remove('open'); }
+
+function spick(btn) {
+  btn.closest('.sp').querySelectorAll('.sp-btn').forEach(b => b.classList.remove('a'));
+  btn.classList.add('a');
+}
+</script>
+</body>
+</html>
